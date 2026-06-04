@@ -1,0 +1,19 @@
+name: Sync fork
+
+on:
+  schedule:
+    # 03:00 Beijing time, 19:00 UTC.
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync fork from parent
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh repo sync ${{ github.repository }} --branch master
