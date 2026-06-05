@@ -16,4 +16,21 @@ jobs:
       - name: Sync fork from parent
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh repo sync ${{ github.repository }} --branch master
+        run: |
+          set +e
+          output=$(gh repo sync ${{ github.repository }} --branch master 2>&1)
+          status=$?
+          set -e
+
+          echo "$output"
+
+          if [ "$status" -eq 0 ]; then
+            exit 0
+          fi
+
+          if echo "$output" | grep -q "can't sync because there are diverging changes"; then
+            echo "Fork has diverging changes; skipping sync."
+            exit 0
+          fi
+
+          exit "$status"
